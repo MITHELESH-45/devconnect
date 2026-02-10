@@ -1,5 +1,5 @@
 const mongoose=require('mongoose');
-
+const validator=require('validator');
 const userSchema=new mongoose.Schema({
 
     firstName:{
@@ -17,11 +17,21 @@ const userSchema=new mongoose.Schema({
         unique:true,
         trim:true,
         lowercase:true,
+        validate(value){
+            if(!validator.isEmail(value)) {
+                throw new Error("Invalid email"+value);
+            }
+        },
     },
     password:{
         type:String,
         required:true,
         minlength:6,
+        validate(value){
+            if(!validator.isStrongPassword(value)) {
+                throw new Error("password not strong"+value);
+            }
+        },
 
     },
     age:{
@@ -34,7 +44,7 @@ const userSchema=new mongoose.Schema({
         updating so we need to add runValidators:true 
         in findByIdAndUpdate method in app.js file*/
         validate(value){
-            if(!["male","female","others"].contains(value)){
+            if(!["male","female","others"].includes(value)){
                 throw new Error("Invalid gender");
             }
         }
@@ -48,7 +58,12 @@ const userSchema=new mongoose.Schema({
 
     photoUrl:{
         type:String,
-        default:"https://www.w3schools.com/howto/img_avatar.png"
+        default:"https://www.w3schools.com/howto/img_avatar.png",
+        validate(value){
+            if(!validator.isURL(value)) {
+                throw new Error("Invalid URL:"+value);
+            }
+        },
     },
 
     skills:{
