@@ -5,6 +5,8 @@ const bcrypt=require('bcrypt');
 const {validateSignUpData,validateEmail}=require('./utils/validate');
 const cookieParser=require('cookie-parser');
 const jwt=require('jsonwebtoken');
+const UserAuth=require('./middlewares/auth');
+
 
 
 const app=express();
@@ -19,7 +21,7 @@ app.post("/signup",async (req,res)=>{
     //encrption of password
      const password=req.body.password;
      const hashedPassword=await bcrypt.hash(password,10);
-     req.body.password=hashedPassword;
+     
 
         const{firstName,lastName,email}=req.body;
         const user=new User({
@@ -44,26 +46,27 @@ app.post("/signup",async (req,res)=>{
     }
 });
 
-app.get("/profile",async(req,res)=>{
+app.get("/profile",UserAuth,async(req,res)=>{
     
     try{
-    const token=req.cookies.token;
-    if(!token){
-        return res.status(401).send("Unauthorized");
-    }
-    const decodedMessage=jwt.verify(token,'Mithul@45');
+   
+     const user=req.user;
+     res.send(user);
     
-    const user=await User.findById(decodedMessage.userId);
-    if(!user){
-        throw new Error("User not found");
-    }
-    res.send("User profile page - token: "+token);
-    console.log("Token from cookie:", token);
     }catch(err){
         console.error("Error fetching profile:", err);
     }
 
 })
+
+app.post("/connectionRequest",UserAuth,async(req,res)=>{
+    try{     
+        const sender=req.user;
+        res.send("Connection request sent successfully from "+sender.firstName);
+    }catch(err){
+        console.error("Error sending connection request:", err);
+    }
+});
 app.post("/login",async (req,res)=>{
 
     try{
@@ -74,13 +77,13 @@ app.post("/login",async (req,res)=>{
         if(!user){
             throw new Error("Invalid credentials");
         }
-        const passwordMatch=await bcrypt.compare(password,user.password);
+        const passwordMatch=await user.verifyPassword(password);
         if(!passwordMatch){
             throw new Error("Invalid credentials");
         }
         
-        const token=jwt.sign({userId:user._id},'Mithul@45');
-        res.cookie("token",token);
+        const token= user.toJWT();
+        res.cookie("token",token,{expires:new Date(Date.now()+7*24*60*60*1000)});
         res.send("Login successful");
 
     }catch(err){
@@ -90,56 +93,6 @@ app.post("/login",async (req,res)=>{
 });
 
 
-app.get("/feed",async (req,res)=>{
-
-    const email=req.query.email;
-
-    try{
-        const user=await User.findOne({email:email}).select("-password");
-        res.send(user);
-        
-    }catch(err){
-        console.log(err);
-        res.status(500).send("Error fetching user");
-    }
-});
-
-app.delete("/user",async(req,res)=>{
-    const id=req.body.id;
-    try{
-        await User.findByIdAndDelete(id);
-        res.send("User deleted successfully");
-    }catch(err){
-        console.log(err);
-        res.status(500).send("Error deleting user");
-    }
-});
-
-app.patch("/user/:userId",async(req,res)=>{
-    const id=req.params.userId;
-    const data=req.body;
-    try{
-
-        const allowed_updates=["firstName","lastName","age","about","skills","photoUrl"];
-
-        const isAllowed=Object.keys(data).every((k)=>
-            allowed_updates.includes(k)
-        );
-
-        if(!isAllowed){
-            throw new Error("Invalid updates");
-        }
-
-        if(data.skills && data.skills.length>10){
-            throw new Error("Skills should be less than 10");
-        }
-        const user=await User.findByIdAndUpdate(id,data,{runValidators:true});
-        res.send("User updated successfully");
-    }catch(err){
-        console.log(err);
-        res.status(500).send("Error updating user" + err.message);
-    }
-});
 
 connectDb().then(()=>{
       console.log("Database connected successfully");
