@@ -3,10 +3,13 @@ const connectDb=require('./config/database');
 const User=require('./models/user');
 const bcrypt=require('bcrypt');
 const {validateSignUpData,validateEmail}=require('./utils/validate');
+const cookieParser=require('cookie-parser');
+const jwt=require('jsonwebtoken');
 
 
 const app=express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup",async (req,res)=>{
     try{
@@ -41,7 +44,27 @@ app.post("/signup",async (req,res)=>{
     }
 });
 
-app.get("/login",async (req,res)=>{
+app.get("/profile",async(req,res)=>{
+    
+    try{
+    const token=req.cookies.token;
+    if(!token){
+        return res.status(401).send("Unauthorized");
+    }
+    const decodedMessage=jwt.verify(token,'Mithul@45');
+    
+    const user=await User.findById(decodedMessage.userId);
+    if(!user){
+        throw new Error("User not found");
+    }
+    res.send("User profile page - token: "+token);
+    console.log("Token from cookie:", token);
+    }catch(err){
+        console.error("Error fetching profile:", err);
+    }
+
+})
+app.post("/login",async (req,res)=>{
 
     try{
         const {email,password}=req.body;
@@ -49,16 +72,20 @@ app.get("/login",async (req,res)=>{
 
         const user=await User.findOne({email:email});
         if(!user){
-            return res.status(400).send("Invalid credentials");
+            throw new Error("Invalid credentials");
         }
         const passwordMatch=await bcrypt.compare(password,user.password);
         if(!passwordMatch){
-            return res.status(400).send("Invalid credentials");
+            throw new Error("Invalid credentials");
         }
+        
+        const token=jwt.sign({userId:user._id},'Mithul@45');
+        res.cookie("token",token);
         res.send("Login successful");
+
     }catch(err){
         console.error("Error validating email:", err);
-        res.status(400).send("Invalid email address");
+        res.status(400).send("Invalid email address",err.message);
     }
 });
 
@@ -68,8 +95,9 @@ app.get("/feed",async (req,res)=>{
     const email=req.query.email;
 
     try{
-        const user=await User.findOne({email:email});
+        const user=await User.findOne({email:email}).select("-password");
         res.send(user);
+        
     }catch(err){
         console.log(err);
         res.status(500).send("Error fetching user");
