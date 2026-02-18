@@ -27,7 +27,19 @@ const validateEmail=(email)=>{
     return true;
 }
 
+const validateAllowedList=(req)=>{
+     
+    const AllowedList=["firstName","lastName","age","gender","about","photoUrl"];
+
+    const isAllowed=Object.keys(req.body).every((key)=>AllowedList.includes(key));
+
+    return isAllowed;
+
+}
+
+
+
 
 module.exports={
-    validateSignUpData,validateEmail
+    validateSignUpData,validateEmail,validateAllowedList
 };
