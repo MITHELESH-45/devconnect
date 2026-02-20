@@ -13,7 +13,7 @@ const connectionRequestSchema=new mongoose.Schema({
     status:{
         type:String,
         enum:{
-            values:["intrested","ignored","accepted","rejected"],
+            values:["interested","ignored","accepted","rejected"],
             message:"Status must be intrested, ignored, accepted or rejected"
         }
 
@@ -22,15 +22,15 @@ const connectionRequestSchema=new mongoose.Schema({
     timestamps:true
 });
 
-connectionRequest.index({fromUserId:1,toUserId:1});
+connectionRequestSchema.index({fromUserId:1,toUserId:1},{unique:true});
 
 connectionRequestSchema.pre("save",function(next){
     const connectionRequest=this;
 
     if(connectionRequest.fromUserId.equals(connectionRequest.toUserId)){
-        return next(new Error("Cannot send connection request to yourself"));
+        throw new Error("Cannot send connection request to yourself");
     }
-    next();
+    
 })
 
 

@@ -6,6 +6,7 @@ const UserAuth=async(req,res,next)=>{
     try{
 
         const token=req.cookies.token;
+        
         if(!token){
             throw new Error("Unauthorized");
         }
