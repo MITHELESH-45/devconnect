@@ -8,11 +8,11 @@ profileRouter.get("/profile/view",UserAuth,async(req,res)=>{
     try{
    
      const user=req.user;
-     res.send(user);
+     res.json({data:user});
     
     }catch(err){
         console.error("Error fetching profile:", err);
-        res.send("Error fetching profile"+err.message);
+        res.json({message:err.message});
     }
 
 });
@@ -22,7 +22,7 @@ profileRouter.patch("/profile/edit",UserAuth,async(req,res)=>{
     const allowed=validateAllowedList(req);
 
     if(!allowed){
-        return res.status(400).send("Invalid fields in request body");
+        return res.status(400).json({message:"Invalid fields in request body"});
     }
     try{
            const user=req.user;
@@ -32,11 +32,11 @@ profileRouter.patch("/profile/edit",UserAuth,async(req,res)=>{
            })
 
            await user.save();
-           res.send(`${user.firstName} Profile updated successfully`);
+           res.json({message:`${user.firstName} Profile updated successfully`});
 
     }catch(err){
         console.error("Error updating profile:", err);
-        res.send("Error updating profile"+err.message);
+        res.json({message:"Error updating profile: "+err.message});
     }
 });
 

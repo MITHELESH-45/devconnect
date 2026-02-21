@@ -27,12 +27,12 @@ authRouter.post("/signup",async (req,res)=>{
             photoUrl:req.body.photoUrl
         });
         await user.save()
-        console.log("User saved successfully");
-        res.send("user stored in db");
+        
+        res.json({message:"User stored in db"});
 
     }catch(err){
-        console.error("Error saving user:", err);
-        res.status(500).send("Error saving user"+err.message);
+        
+        res.status(500).json({message:"Error saving user: "+err.message});
      
     }
 });
@@ -58,7 +58,7 @@ authRouter.post("/login",async (req,res)=>{
 
     }catch(err){
         console.error("Error validating email:", err);
-        res.status(400).send("Invalid email address",err.message);
+        res.status(400).json({message:"Login failed: "+err.message});
     }
 });
 
@@ -68,7 +68,7 @@ authRouter.post("/logout",async(req,res)=>{
         expires:new Date(Date.now())
     });
 
-    res.send("logout successful");
+    res.json({message:"logout successful"});
 });
 
 module.exports=authRouter;
