@@ -15,7 +15,7 @@ profileRouter.get("/profile/view",UserAuth,async(req,res)=>{
         res.send("Error fetching profile"+err.message);
     }
 
-})
+});
 
 profileRouter.patch("/profile/edit",UserAuth,async(req,res)=>{
      
@@ -38,6 +38,6 @@ profileRouter.patch("/profile/edit",UserAuth,async(req,res)=>{
         console.error("Error updating profile:", err);
         res.send("Error updating profile"+err.message);
     }
-})
+});
 
 module.exports=profileRouter;

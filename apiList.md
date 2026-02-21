@@ -16,16 +16,15 @@ profileRouter
 
 connectionRequestRouter
 
-- POST/request/send/intrested/:userId
-- POST/request/send/ignored/:userId
-- POST/request/review/accepted/:requestId
-- POST/request/review/rejected/:requestId
+- POST/request/send/status(intrested,ignored)/:TouserId
+- POST/request/review/status(accepted,rejected)/:RequestId
+- 
 
 
 userRouter
 
 - GET /user/connections
-- GET /user/requests
+- GET /user/requests/received
 - GET /user/feed
 
 

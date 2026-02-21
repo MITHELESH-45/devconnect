@@ -68,7 +68,7 @@ requestRouter.post("/request/review/:status/:requestId",UserAuth,async(req,res)=
     const loggedInUser=req.user;
 
     const {status,requestId}=req.params;
-
+    
     const allowedStatus=["accepted","rejected"];
 
     if(!allowedStatus.includes(status)){
@@ -97,8 +97,6 @@ requestRouter.post("/request/review/:status/:requestId",UserAuth,async(req,res)=
         console.error("Error reviewing connection request:", err);
         res.status(500).json({ error: err.message });
     }
-
-
 
 });
 
