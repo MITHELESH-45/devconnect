@@ -3,12 +3,14 @@ const User=require('../models/user');
 
 const UserAuth=async(req,res,next)=>{
 
+    
+    
     try{
 
         const token=req.cookies.token;
         
         if(!token){
-            throw new Error("Unauthorized");
+            return res.status(401).json({message:"Unauthorized"});
         }
         const decoded=jwt.verify(token,"Mithul@45");
 

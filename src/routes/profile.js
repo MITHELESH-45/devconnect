@@ -3,10 +3,12 @@ const profileRouter=express.Router();
 const UserAuth=require('../middlewares/auth');
 const {validateAllowedList}=require('../utils/validate');
 
+
+
 profileRouter.get("/profile/view",UserAuth,async(req,res)=>{
     
     try{
-   
+     
      const user=req.user;
      res.json({data:user});
     
@@ -32,7 +34,7 @@ profileRouter.patch("/profile/edit",UserAuth,async(req,res)=>{
            })
 
            await user.save();
-           res.json({message:`${user.firstName} Profile updated successfully`});
+           res.json({message:`${user.firstName} Profile updated successfully`,data:user});
 
     }catch(err){
         console.error("Error updating profile:", err);
