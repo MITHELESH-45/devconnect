@@ -43,8 +43,11 @@ userRouter.get("/user/connections",UserAuth,async(req,res)=>{
         }).populate("fromUserId",user_safe_fields).populate("toUserId",user_safe_fields);
 
         
-        if(!connections || connections.length===0){
-            return res.status(404).json({ error: "No connection requests found" });
+        if(!connections || connections.length === 0){
+            return res.status(200).json({
+                message: "No connections found",
+                data: []
+            });
         }
         
         const data=connections.map((row)=>{
