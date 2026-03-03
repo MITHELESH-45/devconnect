@@ -15,9 +15,13 @@ userRouter.get("/user/requests/received",UserAuth,async(req,res)=>{
             status:"interested"
         }).populate("fromUserId",user_safe_fields);
 
-        if(!connection || connection.length===0){
-            return res.status(404).json({ error: "No connection requests found" });
+        if(!connection || connection.length === 0){
+            return res.status(200).json({
+                message: "No request found",
+                data: []
+            });
         }
+        
         res.json({
             message:"Received connection requests fetched successfully",
             data:connection
