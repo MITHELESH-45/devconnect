@@ -1,3 +1,4 @@
+require('dotenv').config();
 const jwt= require('jsonwebtoken');
 const mongoose=require('mongoose');
 const validator=require('validator');
@@ -82,7 +83,7 @@ const userSchema=new mongoose.Schema({
 userSchema.methods.toJWT=function(){
     const user=this;
 
-    const token=jwt.sign({userId:user._id},'Mithul@45',{expiresIn:'7d'});
+    const token=jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:'7d'});
     return token;
 }
 
